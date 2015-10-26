@@ -1,6 +1,8 @@
 {
   "runtime": {
     "debug": false,
-    "lifeline": "/tmp"
+    "lifeline": "/tmp",
+    "worker": 0,
+    "user": "freeman"
   }
 }

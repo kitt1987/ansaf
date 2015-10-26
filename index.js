@@ -25,4 +25,4 @@ function loading() {
 
 var self = loading();
 self.runtime.setInterval(() => console.log('Timer'), 5000);
-self.rpc.loop();
+self.runtime.keep(self.rpc.loop);
