@@ -9,18 +9,31 @@ function Logger(whole) {
 }
 
 Logger.prototype.init = function(whole) {
-  if (!whole.config.logDir) {
+  this.debug = whole.config.runtime.debug;
+  var logDir = whole.config.runtime.logDir;
+  if (!logDir) {
 		this.logger = winston;
 		return;
 	}
 
-	this.logger = new(winston.Logger)({
-		transports: [
-			enableLog(whole.config.logDir, 'error'),
-			enableLog(whole.config.logDir, 'warn'),
-			enableLog(whole.config.logDir, 'info')
-		]
-	});
+  var transports = [
+    enableLog(logDir, 'error'),
+    enableLog(logDir, 'warn'),
+    enableLog(logDir, 'info')
+  ];
+
+  if (this.debug) transports.push(enableLog(logDir, 'debug'));
+
+	this.logger = new(winston.Logger)({ transports });
+};
+
+Logger.prototype.debug = function(t) {
+  if (!this.debug) return;
+  if (this.logger) {
+    this.logger.debug(t);
+  } else {
+    console.trace(t);
+  }
 };
 
 ['info', 'warn', 'error'].map(l => {

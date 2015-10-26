@@ -18,7 +18,6 @@ util.mixin(Runtime, LifeCycle);
 util.mixin(Runtime, Timer);
 
 Runtime.prototype.init = function(whole) {
-  this.on('error', () => {});
   Logger.prototype.init.call(this, whole);
   LifeCycle.prototype.init.call(this, whole);
   Timer.prototype.init.call(this, whole);
