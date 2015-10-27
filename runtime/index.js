@@ -17,8 +17,8 @@ util.mixin(Runtime, Logger);
 util.mixin(Runtime, LifeCycle);
 util.mixin(Runtime, Timer);
 
-Runtime.prototype.init = function(whole) {
-  Logger.prototype.init.call(this, whole);
-  LifeCycle.prototype.init.call(this, whole);
-  Timer.prototype.init.call(this, whole);
+Runtime.prototype.init = function() {
+  Logger.prototype.init.call(this);
+  LifeCycle.prototype.init.call(this);
+  Timer.prototype.init.call(this);
 };

@@ -17,20 +17,20 @@ function LifeCycle() {
 
 util.mixin(LifeCycle, EventEmitter);
 
-LifeCycle.prototype.init = function(whole) {
-  this.worker = whole.config.runtime.worker !== undefined ? whole.config.runtime.worker : os.cpus().length;
-  this.user = whole.config.runtime.user;
+LifeCycle.prototype.init = function() {
+  this.worker = this.config.runtime.worker !== undefined ? this.config.runtime.worker : os.cpus().length;
+  this.user = this.config.runtime.user;
   this.maxRivival = this.worker * 3;
 
-  var lifeline = whole.config.runtime.lifeline;
+  var lifeline = this.config.runtime.lifeline;
   if (!lifeline) {
-    whole.runtime.warn("Lifeline is not set such that you can't stop the app manually!");
+    this.runtime.warn("Lifeline is not set such that you can't stop the app manually!");
     return;
   }
 
   const lifelineState = fs.statSync(lifeline);
   if (!lifelineState.isDirectory()) throw new Error('Lifeline must be a directory');
-  const stopFile = whole.package.name + '.stop';
+  const stopFile = this.package.name + '.stop';
   const stopFilePath = path.join(lifeline, stopFile);
   if (fs.existsSync()) fs.unlinkSync();
 
@@ -90,6 +90,8 @@ LifeCycle.prototype.keep = function(loop) {
     if (os.type() !== 'Darwin' && this.user) {
       process.setuid(getSysUid(this.user));
     }
+
+    updatePidFile(path.join(this.config.runtime.lifeline, this.config.package.name + '.pid'));
 
     for (var i = 0; i < this.worker; i++) {
       cluster.fork();

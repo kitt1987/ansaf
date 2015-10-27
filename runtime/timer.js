@@ -7,8 +7,8 @@ function Timer() {
   this.intervals = new TimerContainer(setInterval, clearInterval);
 }
 
-Timer.prototype.init = function(whole) {
-  whole.runtime.on('exit', this.clearAllTimers);
+Timer.prototype.init = function() {
+  this.on('exit', this.clearAllTimers);
 };
 
 Timer.prototype.setTimeout = function(fn, delay) {

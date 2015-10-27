@@ -5,12 +5,12 @@ var path = require('path');
 
 module.exports = Logger;
 
-function Logger(whole) {
+function Logger() {
 }
 
-Logger.prototype.init = function(whole) {
-  this.debug = whole.config.runtime.debug;
-  var logDir = whole.config.runtime.logDir;
+Logger.prototype.init = function() {
+  this.debug = this.config.runtime.debug;
+  var logDir = this.config.runtime.logDir;
   if (!logDir) {
 		this.logger = winston;
 		return;

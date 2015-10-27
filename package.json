@@ -16,6 +16,7 @@
     "bestunit.js": "^0.1.1"
   },
   "dependencies": {
+    "ormcache.js": "^0.1.42",
     "winston": "^1.1.1"
   }
 }
