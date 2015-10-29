@@ -2,8 +2,9 @@
 
 exports = module.exports = CacheKey;
 
-function CacheKey(type) {
-  this.type = type;
+function CacheKey(symbol) {
+  if (!symbol || typeof symbol !== 'string') throw new Error('The symbol of cache key must be string');
+  this.type = symbol;
   this.keys = {};
   this.single = null;
 }

@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./node_modules/bestunit.js/bin/bestunit -d test"
   },
   "author": "",
   "license": "ISC",
@@ -16,7 +16,6 @@
     "bestunit.js": "^0.1.1"
   },
   "dependencies": {
-    "ormcache.js": "^0.1.42",
     "winston": "^1.1.1"
   }
 }
