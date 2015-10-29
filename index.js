@@ -2,12 +2,12 @@
 
 const path = require('path');
 
-function loading() {
+function start() {
   var self = {};
   self.package = require('./package.json');
   var layers = ['package.json', 'config', 'runtime', 'cache', 'middleware', 'rpc'];
 
-  layers.forEach((l, i) => {
+  layers = layers.map(l => {
     var layer, layerName = l;
     if (path.extname(l) === '.json') {
       layer = require('./' + l);
@@ -24,12 +24,25 @@ function loading() {
     }
 
     Object.assign(layer, self);
-    if (layer.init) layer.init();
     self[layerName] = layer;
+    return layer;
   });
 
-  return self;
+  var asyncInit = layers.reduce((previous, layer) => {
+    if (!layer.init) return previous;
+    var asyncInit = layer.init();
+    if (!asyncInit) return previous;
+    if (!previous) return asyncInit;
+    return previous.then(asyncInit);
+  }, null);
+
+  if (asyncInit) {
+    asyncInit.then(() => {
+      self.runtime.keep(self.rpc.loop.bind(self.rpc));
+    });
+  } else {
+    self.runtime.keep(self.rpc.loop.bind(self.rpc));
+  }
 }
 
-var self = loading();
-self.runtime.keep(self.rpc.loop.bind(self.rpc));
+start();
