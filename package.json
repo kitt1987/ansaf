@@ -1,13 +1,14 @@
 {
-  "name": "nodes",
+  "name": "ansaf",
   "version": "0.0.1",
-  "description": "",
+  "description": "A Node.js Server APP Framework",
+  "private": true,
   "main": "index.js",
   "scripts": {
     "test": "bu -d test"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Kitt Hsu",
+  "license": "None",
   "jshintConfig": {
     "node": true,
     "esnext": true
