@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/bestunit.js/bin/bestunit -d test"
+    "test": "bu -d test"
   },
   "author": "",
   "license": "ISC",
