@@ -14,7 +14,8 @@
     "esnext": true
   },
   "devDependencies": {
-    "bestunit.js": "^0.1.1"
+    "bestunit.js": "^0.1.1",
+    "supertest": "^1.1.0"
   },
   "dependencies": {
     "winston": "^1.1.1"

@@ -45,11 +45,13 @@ LifeCycle.prototype.init = function() {
 
   if (watcher) this.on('exit', watcher.close.bind(watcher));
 
-  process.on('uncaughtException', err => {
-    this.error('Caught exception: ' + err);
-    this.error(err.stack);
-    this.halt();
-  });
+  if (!this.config.testing) {
+    process.on('uncaughtException', err => {
+      this.error('Caught exception: ' + err);
+      this.error(err.stack);
+      this.halt();
+    });
+  }
 };
 
 function updatePidFile(pidFile) {

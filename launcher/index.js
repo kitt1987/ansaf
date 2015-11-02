@@ -3,7 +3,7 @@
 const path = require('path');
 
 exports = module.exports = {
-  init: function() {
+  init: function(testing) {
     var self = {};
     self.package = require('../package.json');
     var layers = ['package.json', 'config', 'runtime', 'cache', 'middleware', 'rpc'];
@@ -28,6 +28,8 @@ exports = module.exports = {
       self[layerName] = layer;
       return layer;
     });
+
+    self.config.testing = testing;
 
     var initial = layers.reduce((previous, layer) => {
       if (!layer.init) return previous;
