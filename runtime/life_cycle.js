@@ -36,11 +36,14 @@ LifeCycle.prototype.init = function() {
 
   var watcher = fs.watch(lifeline, (ev, filename) => {
     if (filename === stopFile) {
-      fs.unlinkSync(stopFilePath);
       watcher.close();
+      watcher = null;
+      fs.unlinkSync(stopFilePath);
       this.halt();
     }
   });
+
+  if (watcher) this.on('exit', watcher.close.bind(watcher));
 
   process.on('uncaughtException', err => {
     this.error('Caught exception: ' + err);
