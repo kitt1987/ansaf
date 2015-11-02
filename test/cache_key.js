@@ -12,6 +12,7 @@ module.exports = {
       t.single = {};
       t.single.type = 'single';
       t.single.value = 'single value';
+      t.single.object = { id: 123, key: 456};
       t.key[t.single.type] = new CacheKey(t.single.type);
       t.done();
     },
@@ -19,21 +20,44 @@ module.exports = {
       t.single = null;
       t.done();
     },
-    cacheSingle: t => {
+    cacheSingleValue: t => {
       var key = t.key[t.single.type];
-      t.nothing(key.getKey());
       t.cache[key.createSingleKey().key()] = t.single.value;
       t.done();
     },
-    getValueCached: t => {
-      t.eq(t.cache[t.key[t.single.type].getKey().key()], t.single.value);
+    getSingleValueCached: t => {
+      t.eq(t.cache[t.key[t.single.type].getSingleKey().key()], t.single.value);
+      t.done();
+    },
+    cacheObject: t => {
+      var key = t.key[t.single.type];
+      t.nothing(key.getSingleKey('id'));
+      t.cache[key.createSingleKey('id').key(t.single.object)] = t.single.object;
+      t.done();
+    },
+    getObjectCached: t => {
+      t.eq(t.cache[t.key[t.single.type].getSingleKey('id').key({
+        id: t.single.object.id,
+      })], t.single.object);
+      t.done();
+    },
+    cacheObjectWithAnotherKey: t => {
+      var key = t.key[t.single.type];
+      t.nothing(key.getSingleKey('key'));
+      t.cache[key.createSingleKey('key').key(t.single.object)] = t.single.object;
+      t.done();
+    },
+    getObjectCached2: t => {
+      t.eq(t.cache[t.key[t.single.type].getSingleKey('key').key({
+        key: t.single.object.key,
+      })], t.single.object);
       t.done();
     },
     allKeys: t => {
-      var keys = t.key[t.single.type].allKeys();
-      t.eq(keys.length, 1);
+      var keys = t.key[t.single.type].allSingleKeys();
+      t.eq(keys.length, 2);
       t.done();
-    }
+    },
   },
   range: {
     before: t => {
@@ -50,22 +74,22 @@ module.exports = {
     },
     oneToForty: t => {
       var key = t.key[t.range.type];
-      t.nothing(key.getKey(1, 40));
+      t.nothing(key.getRangeKey(1, 40));
       t.cache[key.createRangeKey(1, 40).key()] = t.range.value1Lasts40;
       t.done();
     },
     getOneLastsForty: t => {
-      t.eq(t.cache[t.key[t.range.type].getKey(1, 40).key()], t.range.value1Lasts40);
+      t.eq(t.cache[t.key[t.range.type].getRangeKey(1, 40).key()], t.range.value1Lasts40);
       t.done();
     },
     get4Lasts10: t => {
-      var key = t.key[t.range.type].getKey(4, 10);
+      var key = t.key[t.range.type].getRangeKey(4, 10);
       t.eq(t.cache[key.key()], t.range.value1Lasts40);
       t.eq(key.filter(t.cache[key.key()]).length, 10);
       t.done();
     },
     no20Lasts41: t => {
-      t.nothing(t.key[t.range.type].getKey(20, 41));
+      t.nothing(t.key[t.range.type].getRangeKey(20, 41));
       t.done();
     }
   }

@@ -31,18 +31,16 @@ exports = module.exports = {
 
     var initial = layers.reduce((previous, layer) => {
       if (!layer.init) return previous;
-      var asyncInit = layer.init();
-      if (!asyncInit) return previous;
-      if (!previous) return asyncInit;
-      return previous.then(asyncInit);
+      if (previous) return previous.then(layer.init.bind(layer));
+      return layer.init();
     }, null);
 
-    if (initial) return initial.then(self);
+    if (initial) return initial.then(() => self);
     return self;
   },
   launch: function() {
     Promise.resolve(exports.init())
-      .then(self => {
+      .then((self) => {
         self.runtime.keep(self.rpc.loop.bind(self.rpc));
       });
   }
