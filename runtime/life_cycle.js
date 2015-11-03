@@ -32,7 +32,7 @@ LifeCycle.prototype.init = function() {
   if (!lifelineState.isDirectory()) throw new Error('Lifeline must be a directory');
   const stopFile = this.package.name + '.stop';
   const stopFilePath = path.join(lifeline, stopFile);
-  if (fs.existsSync()) fs.unlinkSync();
+  if (fs.existsSync(stopFilePath)) fs.unlinkSync(stopFilePath);
 
   var watcher = fs.watch(lifeline, (ev, filename) => {
     if (filename === stopFile) {
@@ -43,7 +43,23 @@ LifeCycle.prototype.init = function() {
     }
   });
 
-  if (watcher) this.on('exit', watcher.close.bind(watcher));
+  this.on('exit', () => { if (watcher) watcher.close(); });
+
+  if (this.config.runtime.hotConfig) {
+    var argsFile = path.resolve(path.basename(module.filename), '../config/args.json');
+    var configWatcher = fs.watch(argsFile, (ev, filename) => {
+      if (!this.config.runtime.hotConfig) {
+        configWatcher.close();
+        this.removeListener('exit', () => { if (configWatcher) configWatcher.close.bind(configWatcher); });
+        configWatcher = null;
+        return;
+      }
+
+      this.config.reload();
+    });
+
+    this.on('exit', () => { if (configWatcher) configWatcher.close(); });
+  }
 
   if (!this.config.testing) {
     process.on('uncaughtException', err => {

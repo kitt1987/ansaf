@@ -21,8 +21,10 @@ function singleKey(ck, field) {
   if (!ck.single[field]) return;
   return buildKey(obj => {
     if (!obj) throw new Error('An object is required to calculate its cache key!');
-    if (!obj[field]) throw new Error('The key of ' + ck.type + ' must be sth. but ' + obj[field]);
-    return ck.type + '#' + field + '#' + obj[field];
+    var value = obj[field];
+    if (value === undefined || value === null)
+      throw new Error('The ' + field + ' of ' + ck.type + ' must be sth. but ' + value);
+    return ck.type + '#' + field + '#' + value;
   });
 }
 
@@ -54,6 +56,7 @@ function rangeKey(ck, offset, count, reqOff, reqCount) {
 }
 
 CacheKey.prototype.getRangeKey = function(offset, count) {
+  if (offset === undefined || count === undefined) return buildKey(() => this.type + '#All');
   var range = offset + count;
   var keys = Object.keys(this.keys);
   for (var i = 0; i < keys.length; i++) {

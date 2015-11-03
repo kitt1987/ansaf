@@ -9,7 +9,7 @@ function Logger() {
 }
 
 Logger.prototype.init = function() {
-  this.debug = this.config.runtime.debug;
+  this.enableDebug = this.config.runtime.debug;
   var logDir = this.config.runtime.logDir;
   if (!logDir) {
 		this.logger = winston;
@@ -22,13 +22,12 @@ Logger.prototype.init = function() {
     enableLog(logDir, 'info')
   ];
 
-  if (this.debug) transports.push(enableLog(logDir, 'debug'));
-
+  if (this.enableDebug) transports.push(enableLog(logDir, 'debug'));
 	this.logger = new(winston.Logger)({ transports });
 };
 
 Logger.prototype.debug = function(t) {
-  if (!this.debug) return;
+  if (!this.enableDebug) return;
   if (this.logger) {
     this.logger.debug(t);
   } else {

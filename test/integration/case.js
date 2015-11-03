@@ -3,7 +3,7 @@
 var request = require('supertest');
 
 module.exports = {
-  newCommodityCategory: function(t) {
+  echo: function(t) {
     var text = '12345=abcd';
 
     request(t.app)
