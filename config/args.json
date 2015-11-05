@@ -9,14 +9,6 @@
   "cache": {
     "debug": false,
     "recycle": 300000,
-    "defaultLife": 86400000,
-    "memcached": {
-		  "server": "43f6659c276d413e.m.cnszalist3pub001.ocs.aliyuncs.com:11211"
-  	},
-  	"mysql": {
-  		"server": "rds4qmj434dxu8qcm85y.mysql.rds.aliyuncs.com:3306",
-  		"account": "freeman:d842ba1a1b5649d58156638c7860646e",
-  		"db": "freebacking"
-  	}
+    "defaultLife": 86400000
   }
 }

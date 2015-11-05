@@ -55,7 +55,7 @@ module.exports = {
     },
     allKeys: t => {
       var keys = t.key[t.single.type].allSingleKeys();
-      t.eq(keys.length, 2);
+      t.eq(keys.length, 3);
       t.done();
     },
   },

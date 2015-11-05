@@ -43,7 +43,9 @@ CacheKey.prototype.createSingleKey = function(field) {
 };
 
 CacheKey.prototype.allSingleKeys = function() {
-  return Object.keys(this.single).map(k => singleKey(this, k));
+  var keys = Object.keys(this.single).map(k => singleKey(this, k));
+  keys.push(buildKey(obj => this.type));
+  return keys;
 };
 
 function rangeKey(ck, offset, count, reqOff, reqCount) {
@@ -76,5 +78,7 @@ CacheKey.prototype.createRangeKey = function(offset, count) {
 };
 
 CacheKey.prototype.allRangeKeys = function() {
-  return Object.keys(this.keys).map(k => rangeKey(this, k.offset, k.count));
+  var keys = Object.keys(this.keys).map(k => rangeKey(this, this.keys[k].offset, this.keys[k].count));
+  keys.push(buildKey(() => this.type + '#All'));
+  return keys;
 };

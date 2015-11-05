@@ -12,6 +12,7 @@ Logger.prototype.init = function() {
   this.enableDebug = this.config.runtime.debug;
   var logDir = this.config.runtime.logDir;
   if (!logDir) {
+    if (this.enableDebug) winston.level = 'debug';
 		this.logger = winston;
 		return;
 	}
@@ -23,13 +24,14 @@ Logger.prototype.init = function() {
   ];
 
   if (this.enableDebug) transports.push(enableLog(logDir, 'debug'));
+
 	this.logger = new(winston.Logger)({ transports });
 };
 
 Logger.prototype.debug = function(t) {
   if (!this.enableDebug) return;
   if (this.logger) {
-    this.logger.debug(t);
+    this.logger.log('debug', t);
   } else {
     console.trace(t);
   }
