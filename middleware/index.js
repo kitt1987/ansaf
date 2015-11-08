@@ -17,7 +17,7 @@ Middlewares.prototype.init = function() {
     .filter(f => f !== 'index.js')
     .map(f => path.basename(f, '.js'))
     .map(f => {
-      var M = require(path.relative(path.basename(module.filename), path.join(directory, f)));
+      var M = require('./' + path.relative(path.dirname(module.filename), path.join(directory, f)));
       modules[f] = new M();
     });
 
@@ -34,4 +34,6 @@ Middlewares.prototype.init = function() {
     });
     if (m.init) m.init();
   });
+
+  this.runtime.debug('Middleware initial done');
 };
