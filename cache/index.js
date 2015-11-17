@@ -25,17 +25,20 @@ Cache.prototype.newKey = function(schemaName) {
 };
 
 Cache.prototype.save = function() {
-
+  // new permanent data
+  // and/or new cache entry
 };
 
 Cache.prototype.get = function() {
-
+  // load from cache or permanent layer
 };
 
 Cache.prototype.update = function() {
-
+  // update permanent layer
+  // update all cache entries or flush them
 };
 
 Cache.prototype.delete = function() {
-
+  // delete permanent data
+  // delete all cache entries
 };
