@@ -23,3 +23,19 @@ Cache.prototype.newKey = function(schemaName) {
   this.cacheKeys[schemaName] = key;
   return key;
 };
+
+Cache.prototype.save = function() {
+
+};
+
+Cache.prototype.get = function() {
+
+};
+
+Cache.prototype.update = function() {
+
+};
+
+Cache.prototype.delete = function() {
+
+};
