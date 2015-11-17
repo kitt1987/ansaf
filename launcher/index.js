@@ -38,7 +38,7 @@ function startLayers(layers, testing) {
   return self;
 }
 
-var allLayers = ['package.json', 'config', 'runtime', 'cache', 'middleware', 'rpc'];
+var allLayers = ['../../package.json', 'config', 'runtime', 'cache', 'middleware', 'rpc'];
 
 exports = module.exports = {
   init: startLayers.bind(null, allLayers),

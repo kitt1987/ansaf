@@ -45,8 +45,8 @@ LifeCycle.prototype.init = function() {
 
   this.on('exit', () => { if (watcher) watcher.close(); });
 
-  if (this.config.runtime.hotConfig) {
-    var argsFile = path.resolve(path.dirname(module.filename), '../config/args.json');
+  if (this.config.runtime.hotConfig && this.config.argsFile) {
+    var argsFile = path.resolve(path.dirname(module.filename), this.config.argsFile);
     var configWatcher = fs.watch(argsFile, (ev, filename) => {
       if (!this.config.runtime.hotConfig) {
         configWatcher.close();

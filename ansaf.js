@@ -10,7 +10,7 @@ var RPC = 'rpc';
 
 function createInitFile(dir) {
   fs.writeFileSync(path.join(dir, 'index.js'),
-    "'use strict';\n //return a Promise if you need a async-initial.\nexports.init={\n};\n");
+    "'use strict';\n //return a Promise if you need a async-initial.\nexports.init=function() {\n};\n");
 }
 
 function initConfig(initPath) {
@@ -27,7 +27,10 @@ function initMiddleware(dir) {
   fs.mkdirSync(path.join(dir, 'module'));
 }
 
-var initRPC = initMiddleware;
+function initRPC(dir) {
+  fs.writeFileSync(path.join(dir, 'index.js'),
+    "'use strict';\n //return a Promise if you need a async-initial.\nexports.createServer=function() {\n};\n");
+}
 
 function installPackage(p) {
   var exec = require('child_process').exec;
@@ -72,7 +75,7 @@ function buildProfile() {
   initCache(paths[1]);
   initMiddleware(paths[2]);
   initRPC(paths[3]);
-  // installPackage('ansaf');
+  // FIXME installPackage('ansaf');
 }
 
 buildProfile();

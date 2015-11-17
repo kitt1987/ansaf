@@ -10,14 +10,13 @@ function Middlewares() {
 
 }
 
-Middlewares.prototype.init = function() {
-  var directory = path.join(path.dirname(module.filename), 'module');
+function installModules(customMiddleware) {
+  var dir = path.join(customMiddleware, 'module');
   var modules = {};
-  fs.readdirSync(directory)
-    .filter(f => f !== 'index.js')
+  fs.readdirSync(dir)
     .map(f => path.basename(f, '.js'))
     .map(f => {
-      var M = require('./' + path.relative(path.dirname(module.filename), path.join(directory, f)));
+      var M = require('./' + path.relative(path.dirname(module.filename), path.join(dir, f)));
       modules[f] = new M();
     });
 
@@ -34,6 +33,22 @@ Middlewares.prototype.init = function() {
     });
     if (m.init) m.init();
   });
+}
 
+Middlewares.prototype.init = function() {
+  var customMiddleware = path.join(path.dirname(module.filename), '../../../middleware');
+  var customInit;
+  try {
+    customInit = require('./' + path.relative(path.dirname(module.filename), customMiddleware));
+  } catch(err) {}
+
+  if (customInit && customInit.init) {
+    var init = customInit.init();
+    if (init) {
+      return init.then(installModules.bind(this, customMiddleware));
+    }
+  }
+
+  installModules.call(this, customMiddleware);
   this.runtime.debug('Middleware initial done');
 };
