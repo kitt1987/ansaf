@@ -8,28 +8,25 @@ var CACHE = 'cache';
 var MIDDLEWARE = 'middleware';
 var RPC = 'rpc';
 
-function createInitFile(dir) {
-  fs.writeFileSync(path.join(dir, 'index.js'),
-    "'use strict';\n //return a Promise if you need a async-initial.\nexports.init=function() {\n};\n");
-}
-
 function initConfig(initPath) {
   fs.writeFileSync(path.join(initPath, 'args.json'), '{\n}\n');
   fs.writeFileSync(path.join(initPath, 'args.test.json'), '{\n}\n');
 }
 
 function initCache(dir) {
-  createInitFile(dir);
+  fs.writeFileSync(path.join(dir, 'index.js'),
+    "'use strict';\n //return a Promise if you need a async-initial.\nexports.createORM = function() {\n};\nexports.createUniversalCache = function() {\n};\n");
 }
 
 function initMiddleware(dir) {
-  createInitFile(dir);
+  fs.writeFileSync(path.join(dir, 'index.js'),
+    "'use strict';\n //return a Promise if you need a async-initial.\nexports.init=function() {\n};\n");
   fs.mkdirSync(path.join(dir, 'module'));
 }
 
 function initRPC(dir) {
   fs.writeFileSync(path.join(dir, 'index.js'),
-    "'use strict';\n //return a Promise if you need a async-initial.\nexports.createServer=function() {\n};\n");
+    "'use strict';\n //return a Promise if you need a async-initial.\nexports.createServer = function() {\n};\n");
 }
 
 function installPackage(p) {
