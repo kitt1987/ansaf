@@ -46,19 +46,21 @@ LifeCycle.prototype.init = function() {
   this.on('exit', () => { if (watcher) watcher.close(); });
 
   if (this.config.runtime.hotConfig && this.config.argsFile) {
-    var argsFile = path.resolve(path.dirname(module.filename), this.config.argsFile);
+    var argsFile = path.resolve(path.dirname(module.filename), path.dirname(this.config.argsFile));
     var configWatcher = fs.watch(argsFile, (ev, filename) => {
+      if (filename !== 'args.json') return;
       if (!this.config.runtime.hotConfig) {
         configWatcher.close();
-        this.removeListener('exit', () => { if (configWatcher) configWatcher.close.bind(configWatcher); });
+        this.removeListener('exit', () => { configWatcher.close(); });
         configWatcher = null;
         return;
       }
 
+      this.info('Configuration changed');
       this.config.reload();
     });
 
-    this.on('exit', () => { if (configWatcher) configWatcher.close(); });
+    this.on('exit', () => { configWatcher.close(); });
   }
 
   if (!this.config.testing) {

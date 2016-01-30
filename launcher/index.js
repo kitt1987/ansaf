@@ -8,10 +8,10 @@ function startLayers(layers, testing) {
   layers = layers.map(l => {
     var layer, layerName = l;
     if (path.extname(l) === '.json') {
-      layer = require('../' + l);
+      layer = require(path.join('..', l));
       layerName = path.basename(l, '.json');
     } else {
-      var Layer = require('../' + l);
+      var Layer = require(path.join('..', l));
       if (typeof Layer === 'function') {
         layer = new Layer();
       } else if (typeof Layer === 'object') {

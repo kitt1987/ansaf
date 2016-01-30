@@ -37,15 +37,25 @@ Logger.prototype.debug = function(t) {
   }
 };
 
-['info', 'warn', 'error'].map(l => {
-	Logger.prototype[l] = (t) => {
-		if (this.logger) {
-			this.logger[l].call(this.logger, t);
-		} else {
-			console[l].call(console, t);
-		}
-	};
-});
+Logger.prototype.info = function(t) {
+  this.saveLog('info', t);
+};
+
+Logger.prototype.warn = function(t) {
+  this.saveLog('warn', t);
+};
+
+Logger.prototype.error = function(t) {
+  this.saveLog('error', t);
+};
+
+Logger.prototype.saveLog = function(level, t) {
+  if (this.logger) {
+    this.logger[level].call(this.logger, t);
+  } else {
+    console[level].call(console, t);
+  }
+};
 
 function enableLog(dir, level) {
 	return new(winston.transports.File)({
