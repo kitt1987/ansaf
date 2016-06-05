@@ -2,12 +2,12 @@
 
 module.exports = {
   before: function(t) {
-    Promise.resolve(require('../launcher').init(true))
-      .then(whole => {
+    Promise.resolve(require('../launcher').init('test'))
+      .then((whole) => {
         t.whole = whole;
         t.app = whole.rpc.server;
         t.done();
-      }).catch(err => {
+      }).catch((err) => {
         console.log(err.stack);
       });
   },

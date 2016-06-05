@@ -43,7 +43,9 @@ LifeCycle.prototype.init = function() {
     }
   });
 
-  this.on('exit', () => { if (watcher) watcher.close(); });
+  this.on('exit', () => {
+    if (watcher) watcher.close();
+  });
 
   if (this.config.runtime.hotConfig && this.config.argsFile) {
     var argsFile = path.resolve(path.dirname(module.filename), path.dirname(this.config.argsFile));
@@ -51,7 +53,9 @@ LifeCycle.prototype.init = function() {
       if (filename !== 'args.json') return;
       if (!this.config.runtime.hotConfig) {
         configWatcher.close();
-        this.removeListener('exit', () => { configWatcher.close(); });
+        this.removeListener('exit', () => {
+          configWatcher.close();
+        });
         configWatcher = null;
         return;
       }
@@ -60,16 +64,16 @@ LifeCycle.prototype.init = function() {
       this.config.reload();
     });
 
-    this.on('exit', () => { configWatcher.close(); });
-  }
-
-  if (!this.config.testing) {
-    process.on('uncaughtException', err => {
-      this.error('Caught exception: ' + err);
-      this.error(err.stack);
-      this.halt();
+    this.on('exit', () => {
+      configWatcher.close();
     });
   }
+
+  process.on('uncaughtException', err => {
+    this.error('Caught exception: ' + err);
+    this.error(err.stack);
+    this.halt();
+  });
 };
 
 function updatePidFile(pidFile) {

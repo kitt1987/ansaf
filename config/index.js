@@ -5,25 +5,24 @@ module.exports = Config;
 function Config() {
 }
 
-function loadArgs(testing) {
-  var args = require(testing ? './args.test.json' : './args.json');
+function loadArgs(configTag) {
+  configTag = configTag ? configTag : '';
   try {
-    var argsFile = testing ? '../../../config/args.test.json' : '../../../config/args.json';
-    var customArgs = require(argsFile);
+    var argsFile = '../../../config/args.' + configTag + '.js';
+    var args = require(argsFile);
     args.argsFile = argsFile;
-    Object.assign(args, customArgs);
     require.cache[require.resolve(argsFile)] = null;
   } catch (err) {}
 
   return args;
 }
 
-Config.prototype.init = function() {
-  this.reload();
+Config.prototype.init = function(configTag) {
+  this.reload(configTag);
 };
 
-Config.prototype.reload = function() {
-  var args = loadArgs(this.testing);
+Config.prototype.reload = function(configTag) {
+  var args = loadArgs(configTag);
   if (!args) return;
   Object.assign(this, args);
 };
