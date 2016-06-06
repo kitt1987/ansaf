@@ -12,5 +12,8 @@ module.exports = {
     debug: false,
     recycle: 300000,
     defaultLife: 86400000
+  },
+  rpc: {
+    port: 1234
   }
 };

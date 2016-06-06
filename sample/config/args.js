@@ -2,7 +2,7 @@
 
 module.exports = {
   runtime: {
-    debug: false,
+    debug: true,
     lifeline: '/tmp',
     worker: 0,
     user: 'freeman',
@@ -14,6 +14,6 @@ module.exports = {
     defaultLife: 86400000
   },
   rpc: {
-    port: 1234
+    port: 4321,
   }
 };

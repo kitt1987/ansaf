@@ -14,6 +14,6 @@ module.exports = {
     defaultLife: 86400000
   },
   rpc: {
-    port: 1234
+    port: 1234,
   }
 };

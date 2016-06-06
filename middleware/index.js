@@ -2,15 +2,20 @@
 
 var path = require('path');
 var fs = require('fs');
+var util = require('../utility');
 
-module.exports = Middlewares;
-
-function Middlewares() {
-
+class Middleware extends util.PrivateFuncHelper {
+  init() {
+    this.runtime.debug('Ready to install middleware');
+    const customMiddleware = path.join(path.dirname(module.filename),
+      '../../../middleware');
+    this._(installModules, customMiddleware);
+    this.runtime.debug('Middleware initial done');
+  }
 }
 
 function installModules(customMiddleware) {
-  var dir = path.join(customMiddleware, 'module');
+  const dir = customMiddleware;
   var modules = {};
   fs.readdirSync(dir)
     .filter((f) => f[0] !== '.' && f.endsWith('.js'))
@@ -36,22 +41,4 @@ function installModules(customMiddleware) {
   });
 }
 
-Middlewares.prototype.init = function() {
-  var customMiddleware = path.join(path.dirname(module.filename),
-    '../../../middleware');
-  var customInit;
-  try {
-    customInit = require('./' + path.relative(path.dirname(module.filename),
-      customMiddleware));
-  } catch (err) {}
-
-  if (customInit && customInit.init) {
-    var init = customInit.init();
-    if (init) {
-      return init.then(installModules.bind(this, customMiddleware));
-    }
-  }
-
-  installModules.call(this, customMiddleware);
-  this.runtime.debug('Middleware initial done');
-};
+module.exports = Middleware;

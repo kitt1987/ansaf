@@ -6,13 +6,15 @@ function Config() {
 }
 
 function loadArgs(configTag) {
-  configTag = configTag ? configTag : '';
+  configTag = configTag ? '.' + configTag : '';
   try {
-    var argsFile = '../../../config/args.' + configTag + '.js';
+    var argsFile = '../../../config/args' + configTag + '.js';
     var args = require(argsFile);
     args.argsFile = argsFile;
     require.cache[require.resolve(argsFile)] = null;
-  } catch (err) {}
+  } catch (err) {
+    console.error(err);
+  }
 
   return args;
 }

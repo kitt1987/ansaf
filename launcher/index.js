@@ -21,12 +21,12 @@ function startLayers(layers, configTag) {
       }
     }
 
-    self.config.testing = configTag === 'test';
-
     Object.assign(layer, self);
     self[layerName] = layer;
     return layer;
   });
+
+  self.config.testing = configTag === 'test';
 
   var initial = layers.reduce((previous, layer) => {
     if (!layer.init) return previous;
@@ -55,8 +55,7 @@ module.exports = {
         self.runtime.keep(self.rpc.loop.bind(self.rpc));
       })
       .catch((err) => {
-        if (err.stack) console.log(err.stack);
-        else console.log(err);
+        console.error(err);
       });
   }
 };

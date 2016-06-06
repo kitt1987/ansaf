@@ -29,11 +29,13 @@ Cache.prototype.init = function() {
             );
           if (storage) {
             if (storage instanceof Promise) {
-              return storage.then((storage) => this.storage = storage);
-            } else {
-              this.storage = storage;
+              resolve(storage.then((storage) => this.storage = storage));
+              return;
             }
           }
+
+          this.storage = storage;
+          resolve();
         }
       });
 };

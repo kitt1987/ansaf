@@ -9,6 +9,26 @@ var CACHE = 'cache';
 var MIDDLEWARE = 'middleware';
 var RPC = 'rpc';
 
+const MAIN_CONTENT = `'use strict';
+require('ansaf');
+`;
+
+const CACHE_CONTENT = `'use strict';
+//return a Promise if you need a async-initial.
+exports.createStorage = function() {
+  return {
+    get: (key, schema) => {},
+    createTransaction: (cache) => {}
+  };
+};
+`;
+
+const RPC_CONTENT = `'use strict';
+//return a Promise if you need a async-initial.
+exports.createServer = function() {
+};
+`;
+
 function initConfig(initPath) {
   fs.createReadStream('node_modules/ansaf/config/args.js')
     .pipe(fs.createWriteStream(path.join(initPath, 'args.js')));
@@ -17,35 +37,21 @@ function initConfig(initPath) {
 }
 
 function initCache(dir) {
-  fs.writeFileSync(path.join(dir, 'index.js'),
-    `'use strict';
-    //return a Promise if you need a async-initial.
-    exports.createStorage = function() {
-      return {
-        get: (key, schema) => {},
-        createTransaction: (cache) => {}
-      };
-    };`
-  );
+  fs.writeFileSync(path.join(dir, 'index.js'), CACHE_CONTENT);
 }
 
 function initMiddleware(dir) {
-  fs.writeFileSync(path.join(dir, 'index.js'),
-    `'use strict';
-    //return a Promise if you need a async-initial.
-    exports.init=function() {
-    };`
-  );
-  fs.mkdirSync(path.join(dir, 'module'));
+  // fs.writeFileSync(path.join(dir, 'index.js'),
+  //   `'use strict';
+  //   //return a Promise if you need a async-initial.
+  //   exports.init=function() {
+  //   };`
+  // );
+  // fs.mkdirSync(path.join(dir, 'module'));
 }
 
 function initRPC(dir) {
-  fs.writeFileSync(path.join(dir, 'index.js'),
-    `'use strict';
-    //return a Promise if you need a async-initial.
-    exports.createServer = function() {
-    };`
-  );
+  fs.writeFileSync(path.join(dir, 'index.js'), RPC_CONTENT);
 }
 
 function installPackage(p) {
@@ -81,7 +87,7 @@ function buildProfile() {
 
   var projectName = process.argv[2];
   if (fs.existsSync(projectName)) {
-    console.error('A dirctory has same name with you project is found!');
+    console.error('A dirctory has the same name with you project is found!');
     return;
   }
 
@@ -92,14 +98,14 @@ function buildProfile() {
     return d;
   });
 
-  fs.writeFileSync(path.join(projectName, 'index.js'), "require('ansaf')");
+  fs.writeFileSync(path.join(projectName, 'index.js'), MAIN_CONTENT);
   fs.writeFileSync(path.join(projectName, 'package.json'),
     '{\n  "name": "' + projectName + '"\n}\n'
   );
 
   process.chdir(projectName);
 
-  installPackage('ansaf')
+  installPackage('..')
     .then(() => {
       initConfig(paths[0]);
       initCache(paths[1]);

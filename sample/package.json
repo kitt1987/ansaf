@@ -1,0 +1,6 @@
+{
+  "name": "sample",
+  "dependencies": {
+    "ansaf": "file:///Users/KH/Documents/js/ansaf"
+  }
+}
