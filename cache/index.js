@@ -53,6 +53,6 @@ Cache.prototype.get = function(key, schema) {
   return this.storage.get(key, schema);
 };
 
-Cache.prototype.createTransaction = function() {
-  return this.storage.createTransaction(this);
+Cache.prototype.createTransaction = function(nativeHandler) {
+  return this.storage.createTransaction(nativeHandler);
 };

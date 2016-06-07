@@ -4,16 +4,21 @@ module.exports = {
   runtime: {
     debug: true,
     lifeline: '/tmp',
-    worker: 0,
+    worker: 2,
     user: 'freeman',
     hotConfig: true
   },
   cache: {
     debug: false,
     recycle: 300000,
-    defaultLife: 86400000
+    defaultLife: 86400000,
+    transactionRetries: 3,
   },
   rpc: {
     port: 4321,
+  },
+  redis: {
+    host: 'localhost',
+    port: 32768,
   }
 };

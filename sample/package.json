@@ -1,6 +1,9 @@
 {
   "name": "sample",
   "dependencies": {
-    "ansaf": "file:///Users/KH/Documents/js/ansaf"
+    "ansaf": "file:///Users/KH/Documents/js/ansaf",
+    "dummyORM": "file:///Users/KH/Documents/js/ormcache.js",
+    "express": "^4.13.4",
+    "ioredis": "^2.0.1"
   }
 }
