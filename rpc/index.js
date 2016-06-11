@@ -21,9 +21,11 @@ RPC.prototype.init = function() {
 RPC.prototype.runInTransaction = function(nativeHandle) {
   var self = this;
   var rpcHandle = function() {
-    var transaction = self.cache.createTransaction(nativeHandle);
-    Object.assign(transaction, self);
-    return transaction.run.apply(transaction, arguments);
+    self.cache.createTransaction(nativeHandle)
+      .then((transaction) => {
+        Object.assign(transaction, self);
+        return transaction.run.apply(transaction, arguments);
+      });
   };
 
   return rpcHandle;

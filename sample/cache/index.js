@@ -1,6 +1,51 @@
 'use strict';
 var Redis = require('ioredis');
 
+class RedisConnectionPool {
+  constructor(size) {
+    this.idleConn = [];
+    this.conn = [];
+    this.pendingReq = [];
+    this.maxNumConn = size;
+  }
+
+  getConnection() {
+    return new Promise((resolve) => {
+      if (this.idleConn.length > 0) {
+        console.log('Found an idle connection, ship it!');
+        const conn = this.idleConn.pop();
+        console.assert(conn);
+        resolve(conn);
+        return;
+      }
+
+      if (this.conn.length < this.maxNumConn) {
+        console.log('Create a new connection!');
+        const conn = new Redis(32768, 'localhost');
+        this.conn.push(conn);
+        resolve(conn);
+        return;
+      }
+
+      console.log('No idle connection, the request will be pending.');
+      this.pendingReq.push(resolve);
+    });
+  }
+
+  releaseConnection(conn) {
+    if (this.pendingReq.length > 0) {
+      console.log('Ship a pending request!!');
+      const req = this.pendingReq.pop();
+      console.assert(req);
+      req(conn);
+      return;
+    }
+
+    console.log('Release a connection!');
+    this.idleConn.push(conn);
+  }
+}
+
 class RedisStorage {
   static serialize(record) {
     return record.toJSON ? record.toJSON() : JSON.stringify(record);
@@ -12,6 +57,7 @@ class RedisStorage {
 
   constructor() {
     this.redis = new Redis(32768, 'localhost');
+    this.transConnPool = new RedisConnectionPool(1);
   }
 
   get(key, schema) {
@@ -38,13 +84,17 @@ class RedisStorage {
   }
 
   createTransaction(nativeHandler) {
-    return new SoftTransaction(this.redis, nativeHandler);
+    return this.transConnPool.getConnection()
+      .then((conn) => {
+        return new SoftTransaction(conn, this.transConnPool, nativeHandler);
+      });
   }
 }
 
 class SoftTransaction {
-  constructor(redis, nativeHandler) {
+  constructor(redis, transConnPool, nativeHandler) {
     this.redis = redis;
+    this.transConnPool = transConnPool;
     this.pending = {};
     this.deleted = {};
     this.nativeHandler = nativeHandler;
@@ -53,7 +103,8 @@ class SoftTransaction {
 
   run() {
     this.args = arguments;
-    this.nativeHandler.apply(this, arguments);
+    this.nativeHandler.apply(this, arguments)
+      .then(() => console.log('Handled'));
   }
 
   get(key, schema) {
@@ -95,7 +146,7 @@ class SoftTransaction {
     return Promise.resolve(record);
   }
 
-  commit() {
+  commit(replyCallback) {
     var pendingKeys = Object.keys(this.pending).filter(
       (k) => this.pending[k] !== null
     );
@@ -109,11 +160,18 @@ class SoftTransaction {
     }
     var trans = this.redis.multi();
     trans = pendingKeys.reduce((trans, k) => trans.set(
-        k, RedisStorage.serialize(this.pending[k])
-      ), trans);
+      k, RedisStorage.serialize(this.pending[k])
+    ), trans);
     trans = deletedKeys.reduce((trans, k) => trans.del(k), trans);
     return trans.exec()
-      .then(() => this.pending)
+      .then((result) => {
+        if (result) {
+          this.transConnPool.releaseConnection(this.redis);
+          return replyCallback(this.pending);
+        }
+
+        throw new Error('Fail to commit transaction!');
+      })
       .catch((err) => {
         this.runtime.warn('Fail to commit transaction!');
         return this.retry();
@@ -121,11 +179,12 @@ class SoftTransaction {
   }
 
   cancel() {
-
+    this.transConnPool.releaseConnection(this.redis);
   }
 
   retry() {
     if (this.retries >= this.config.cache.transactionRetries) {
+      this.transConnPool.releaseConnection(this.redis);
       throw new Error('This transaction has retried for ' + this.retries +
         ' times.');
     }
