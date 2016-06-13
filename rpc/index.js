@@ -19,12 +19,15 @@ RPC.prototype.init = function() {
 };
 
 RPC.prototype.runInTransaction = function(nativeHandle) {
+  if (!nativeHandle || !nativeHandle.prototype)
+    throw new Error('An arrow function cant work as native handler.');
+
   var self = this;
-  var rpcHandle = function() {
+  var rpcHandle = function(...rpcArgs) {
     self.cache.createTransaction(nativeHandle)
       .then((transaction) => {
         Object.assign(transaction, self);
-        return transaction.run.apply(transaction, arguments);
+        return transaction.run.apply(transaction, rpcArgs);
       });
   };
 
