@@ -2,7 +2,7 @@
 
 const path = require('path');
 
-function startLayers(layers, configTag) {
+function startLayers(layers) {
   var self = {};
 
   layers = layers.map((l) => {
@@ -11,7 +11,7 @@ function startLayers(layers, configTag) {
       layer = require(path.join('..', l));
       layerName = path.basename(l, '.json');
     } else {
-      var Layer = require(path.join('..', l));
+      var Layer = require(l);
       if (typeof Layer === 'function') {
         layer = new Layer();
       } else if (typeof Layer === 'object') {
@@ -26,12 +26,10 @@ function startLayers(layers, configTag) {
     return layer;
   });
 
-  self.config.testing = configTag === 'test';
-
   var initial = layers.reduce((previous, layer) => {
     if (!layer.init) return previous;
-    if (previous) return previous.then(layer.init.bind(layer, configTag));
-    return layer.init(configTag);
+    if (previous) return previous.then(layer.init.bind(layer));
+    return layer.init();
   }, null);
 
   if (initial) return initial.then(() => self);
@@ -49,13 +47,13 @@ var allLayers = [
 
 module.exports = {
   init: startLayers.bind(null, allLayers),
-  launch: function(configTag) {
-    Promise.resolve(startLayers(allLayers, configTag))
-      .then((self) => {
-        self.runtime.keep(self.rpc.loop.bind(self.rpc));
-      })
-      .catch((err) => {
-        console.error(err);
-      });
-  }
+  // launch: function() {
+  //   Promise.resolve(startLayers(allLayers))
+  //     .then((self) => {
+  //       self.runtime.keep(self.rpc.loop.bind(self.rpc));
+  //     })
+  //     .catch((err) => {
+  //       console.error(err);
+  //     });
+  // }
 };

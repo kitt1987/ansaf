@@ -55,9 +55,11 @@ TimerContainer.prototype.set = function(fn, delay) {
 };
 
 TimerContainer.prototype.clear = function(id) {
-  if (id === undefined) throw new Error('You should set ID of the timer you want to cancel!');
+  if (id === undefined)
+    throw new Error('You should set ID of the timer you want to cancel!');
   var timerID = this.timers[id];
-  if (timerID === undefined) throw new Error('The timer ID you offered is not correct!');
+  if (timerID === undefined)
+    throw new Error('The timer ID you offered is not correct!');
   this.cleaner(timerID);
   this.idles.push(id);
   this.timers[id] = null;
@@ -65,5 +67,5 @@ TimerContainer.prototype.clear = function(id) {
 
 TimerContainer.prototype.clearAll = function() {
   this.idles = [];
-  this.timers.forEach(id => this.cleaner(id));
+  this.timers.forEach((id) => this.cleaner(id));
 };

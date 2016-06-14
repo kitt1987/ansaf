@@ -6,9 +6,9 @@ const KEY = 'IncrementKey';
 const KEY2 = 'IncrementKey2';
 
 class IncrementService {
-  constructor(rpc) {
+  constructor(ansaf, router) {
     this.router = express.Router();
-    this.router.post('/', rpc.runInTransaction(function(req, res) {
+    this.router.post('/', ansaf.rpc.runInTransaction(function(req, res) {
       return this.get(KEY)
         .then((obj) => {
           if (typeof obj !== 'number') return this.save(KEY, 0);
@@ -29,7 +29,7 @@ class IncrementService {
         }));
     }));
 
-    rpc.mainRouter.use('/increase', this.router);
+    router.use('/increase', this.router);
   }
 }
 

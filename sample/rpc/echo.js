@@ -3,13 +3,13 @@
 var express = require('express');
 
 class EchoService {
-  constructor(rpc) {
+  constructor(ansaf, router) {
     this.router = express.Router();
-    this.router.get('/', (req, res) => {
+    this.router.get('/', ansaf.rpc.run(function(req, res) {
       res.end(JSON.stringify(req.query));
-    });
+    }));
 
-    rpc.mainRouter.use('/echo', this.router);
+    router.use('/echo', this.router);
   }
 }
 

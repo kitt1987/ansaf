@@ -197,6 +197,4 @@ class SoftTransaction {
   }
 }
 
-exports.createStorage = function() {
-  return new RedisStorage();
-};
+module.exports = RedisStorage;

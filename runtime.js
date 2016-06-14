@@ -1,9 +1,9 @@
 'use strict';
 
-var util = require('../utility');
-var Logger = require('./logger');
-var LifeCycle = require('./life_cycle');
-var Timer = require('./timer');
+var util = require('./utility');
+var Logger = require('./runtime/logger');
+var LifeCycle = require('./runtime/life_cycle');
+var Timer = require('./runtime/timer');
 
 module.exports = Runtime;
 
