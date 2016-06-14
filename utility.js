@@ -13,6 +13,20 @@ function mixin(cA, cB) {
     });
 }
 
+function use(owner, key, obj) {
+  if (typeof key !== 'string') {
+    if (obj) throw new Error('The key must be a string');
+    var transformer = {key};
+    Object.keys(transformer).forEach((k) => {
+      key = k;
+      obj = transformer[k];
+    });
+  }
+
+  if (owner[key]) throw new Error('Sth with key ' + key + ' exists!');
+  owner[key] = obj;
+}
+
 class PrivateFuncHelper {
   constructor() {
     var self = this;
@@ -39,5 +53,6 @@ class PrivateFuncHelper {
 
 module.exports = {
   mixin,
+  use,
   PrivateFuncHelper,
 };

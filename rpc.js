@@ -1,6 +1,7 @@
 'use strict';
 
 const SERVER_LOOP_KEY = 'loop';
+const util = require('./utility');
 
 class RPC {
   runInTransaction(nativeHandler) {
@@ -37,25 +38,7 @@ class RPC {
   }
 
   use(key, obj) {
-    if (typeof key !== 'string') {
-      if (obj) throw new Error('The key must be a string');
-      var transformer = {
-        key
-      };
-      Object.keys(transformer).forEach((k) => {
-        key = k;
-        obj = transformer[k];
-      });
-    }
-
-    if (this[key]) throw new Error('Sth with key ' + key + ' exists!');
-    if (key === SERVER_LOOP_KEY && typeof obj !== 'function') {
-      throw new Error(
-        'The server loop must be a function without arguments'
-      );
-    }
-
-    this[key] = obj;
+    util.use(this, key, obj);
   }
 }
 

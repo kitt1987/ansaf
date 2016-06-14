@@ -1,5 +1,7 @@
 'use strict';
 
+const util = require('./utility');
+
 class Middleware {
   constructor() {
     Object.defineProperty(this, 'keys', {
@@ -10,17 +12,7 @@ class Middleware {
   }
 
   use(key, obj) {
-    if (typeof key !== 'string') {
-      if (obj) throw new Error('The key must be a string');
-      var transformer = {key};
-      Object.keys(transformer).forEach((k) => {
-        key = k;
-        obj = transformer[k];
-      });
-    }
-
-    if (this[key]) throw new Error('Sth with key ' + key + ' exists!');
-    this[key] = obj;
+    util.use(this, key, obj);
   }
 }
 
