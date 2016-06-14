@@ -47,13 +47,4 @@ var allLayers = [
 
 module.exports = {
   init: startLayers.bind(null, allLayers),
-  // launch: function() {
-  //   Promise.resolve(startLayers(allLayers))
-  //     .then((self) => {
-  //       self.runtime.keep(self.rpc.loop.bind(self.rpc));
-  //     })
-  //     .catch((err) => {
-  //       console.error(err);
-  //     });
-  // }
 };

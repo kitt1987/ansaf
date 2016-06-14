@@ -1,73 +1,108 @@
 'use strict';
 
-exports = module.exports = CacheKey;
+class CacheKey {
+  constructor(symbol) {
+    if (!symbol || typeof symbol !== 'string')
+      throw new Error('The symbol of cache key must be string');
+    this.type = symbol;
+    this.keys = {};
+    this.single = {};
+  }
 
-function CacheKey(prefix) {
-  if (!prefix || typeof prefix !== 'string')
-    throw new Error('The prefix of cache key must be string');
+  getSingleKey(field) {
+    if (!field) return singleKey(this);
+    if (!this.single[field]) return;
+    return singleKey(this, field);
+  }
 
-  this.prefix = prefix;
-  this.range = {};
-  this.individual = {};
+  createSingleKey(field) {
+    var key = this.getSingleKey(field);
+    if (key) return key;
+
+    this.single[field] = true;
+    return singleKey(this, field);
+  }
+
+  allSingleKeys() {
+    var keys = Object.keys(this.single).map((k) => singleKey(this, k));
+    keys.push(buildKey((obj) => this.type));
+    return keys;
+  }
+
+  getRangeKey(offset, count) {
+    if (offset === undefined || count === undefined)
+      return buildKey(() => this.type + '#All');
+    var range = offset + count;
+    var keys = Object.keys(this.keys);
+    for (var i = 0; i < keys.length; i++) {
+      var key = this.keys[keys[i]];
+      if (key.offset > offset) break;
+      if (range <= key.range) {
+        return rangeKey(this, key.offset, key.count, offset - key.offset,
+          count);
+      }
+    }
+  }
+
+  createRangeKey(offset, count) {
+    if (offset === undefined || count === undefined)
+      return buildKey(() => this.type + '#All');
+    var existKey = this.keys[offset.toString()];
+    if (existKey && existKey.count === count)
+      return rangeKey(this, existKey.offset, existKey.count);
+    this.keys[offset.toString()] = {
+      offset,
+      count,
+      range: offset + count
+    };
+    return rangeKey(this, offset, count);
+  }
+
+  allRangeKeys() {
+    var keys = Object.keys(this.keys).map(
+      (k) => rangeKey(this, this.keys[k].offset, this.keys[k].count)
+    );
+    keys.push(buildKey(() => this.type + '#All'));
+    return keys;
+  }
 }
 
 function buildKey(key, filter) {
-  key.filter = filter || ((obj) => obj);
-  return key;
+  filter = filter || ((obj) => obj);
+  return {
+    key,
+    filter,
+  };
 }
 
-CacheKey.prototype.individualKey = function(field) {
-  if (!field) return buildKey((obj) => this.prefix);
-  if (!this.individual[field]) this.individual[field] = true;
+function singleKey(ck, field) {
+  if (!field) return buildKey((obj) => ck.type);
+  if (!ck.single[field]) return;
   return buildKey((obj) => {
     if (!obj)
-      throw new Error('An object is required to calculate its text key!');
+      throw new Error('An object is required to calculate its cache key!');
     var value = obj[field];
-    if (value === undefined || value === null) {
-      throw new Error('The ' + field + ' of ' + this.prefix +
-        ' must be sth. but ' + value);
+    if (value === undefined || value === null) return null;
+
+    if (typeof value === 'object') {
+      if (!value.id)
+        throw new Error('The ' + field + ' of ' + ck.type +
+          ' must be sth. but ' + value);
+      return ck.type + '#' + field + '#' + value.id;
     }
 
-    return this.prefix + '#' + field + '#' + value;
+    return ck.type + '#' + field + '#' + value;
   });
-};
+}
 
-CacheKey.prototype.allIndividualKeys = function() {
-  var keys = Object.keys(this.individual).map((k) => this.individualKey(k));
-  keys.push(buildKey((obj) => this.type));
-  return keys;
-};
-
-function rangeKey(prefix, start, end, reqStart, reqEnd) {
-  var noFilter = typeof reqStart !== 'number' || typeof reqEnd !== 'number';
-  return buildKey(() => prefix + '#' + start + ':' + end,
+function rangeKey(ck, offset, count, reqOff, reqCount) {
+  return buildKey(() => ck.type + '#' + offset + ':' + count,
     (obj) => {
-      if (noFilter) return obj;
-      return obj.slice(reqStart, reqEnd);
+      if (typeof reqOff !== 'number' || typeof reqCount !== 'number')
+        return obj;
+      return obj.slice(reqOff, reqOff + reqCount);
     }
   );
 }
 
-CacheKey.prototype.rangeKey = function(start, count) {
-  if (start === undefined || count === undefined)
-    return buildKey(() => this.prefix + '#All');
-  var end = start + count;
-  var keys = Object.keys(this.range);
-  for (var i = 0; i < keys.length; i++) {
-    var endOfKey = this.range[keys[i]];
-    if (keys[i] > start) break;
-    if (end <= endOfKey)
-      return rangeKey(this.prefix, keys[i], endOfKey, start, end);
-  }
-
-  this.range[start] = end;
-  return rangeKey(this.prefix, start, end);
-};
-
-CacheKey.prototype.allRangeKeys = function() {
-  var keys = Object.keys(this.range).map(
-    (k) => rangeKey(this.prefix, k, this.range[k])
-  );
-  keys.push(buildKey(() => this.type + '#All'));
-  return keys;
-};
+module.exports = CacheKey;
