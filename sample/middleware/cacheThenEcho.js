@@ -2,14 +2,12 @@
 
 module.exports = CacheThenEcho;
 
-function CacheThenEcho() {
-
+class CacheThenEcho {
+  constructor(context) {
+    this.key = context.cache.newKey('CacheThenEcho');
+    this.cacheKey = this.key.individualKey();
+  }
 }
-
-CacheThenEcho.prototype.init = function(context) {
-  this.key = context.cache.newKey('CacheThenEcho');
-  this.cacheKey = this.key.individualKey();
-};
 
 CacheThenEcho.prototype.cecho = function(o) {
   if (!o) return this.echo.echo(o);

@@ -29,7 +29,11 @@ class Cache {
 
   createTransaction(nativeHandler) {
     if (!this[TRANSACTION_KEY] || typeof this[TRANSACTION_KEY] !== 'function')
-      throw new Error('A transaction creator is required.');
+      throw new Error(
+        `A function without argument to create transaction is required.
+        Call ansaf.cache.use('transaction', yourFunc) to set it.
+        `
+      );
     return this[TRANSACTION_KEY](nativeHandler);
   }
 

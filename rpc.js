@@ -32,9 +32,12 @@ class RPC {
 
   go() {
     if (!this[SERVER_LOOP_KEY] || typeof this[SERVER_LOOP_KEY] !== 'function')
-      throw new Error('The server loop must be a function without arguments');
+      throw new Error(
+        `A loop function without argument is required.
+        Call ansaf.rpc.use('loop', yourLoop) to set it.`
+      );
     this.runtime.debug('RPC server loops');
-    return this[SERVER_LOOP_KEY].bind(this);
+    this.runtime.keep(this[SERVER_LOOP_KEY].bind(this));
   }
 
   use(key, obj) {
