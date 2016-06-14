@@ -1,6 +1,7 @@
 'use strict';
 
 const path = require('path');
+var Promise = require('bluebird');
 
 function startLayers(layers) {
   var self = {};

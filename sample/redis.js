@@ -1,5 +1,6 @@
 'use strict';
 var Redis = require('ioredis');
+var Promise = require('bluebird');
 
 class RedisConnectionPool {
   constructor(size) {
@@ -79,10 +80,6 @@ class RedisStorage {
       .then(() => record);
   }
 
-  watch(key) {
-    return this.redis.watch(key);
-  }
-
   createTransaction(nativeHandler) {
     return this.transConnPool.getConnection()
       .then((conn) => {
@@ -91,30 +88,26 @@ class RedisStorage {
   }
 }
 
-class SoftTransaction {
-  constructor(redis, transConnPool, nativeHandler) {
-    this.redis = redis;
-    this.transConnPool = transConnPool;
+class TransactionOperator {
+  constructor(conn) {
+    this.conn = conn;
     this.pending = {};
     this.deleted = {};
-    this.nativeHandler = nativeHandler;
-    this.retries = 0;
   }
 
-  run() {
-    this.args = arguments;
-    this.nativeHandler.apply(this, arguments)
-      .then(() => console.log('Handled'));
+  clear() {
+    this.pending = {};
+    this.deleted = {};
   }
 
   get(key, schema) {
     var pending = this.pending[key];
     if (pending) return Promise.resolve(pending);
 
-    return this.redis.watch(key)
-      .then(() => this.redis.get(key))
+    return this.conn.watch(key)
+      .then(() => this.conn.get(key))
       .then((record) => {
-        record = RedisStorage.parse(record);
+        record = RedisStorage.parse(record, schema);
         this.pending[key] = record;
         return record;
       });
@@ -145,6 +138,30 @@ class SoftTransaction {
     this.deleted[key] = record;
     return Promise.resolve(record);
   }
+}
+
+class SoftTransaction {
+  constructor(conn, transConnPool, nativeHandler) {
+    this.conn = conn;
+    this.transConnPool = transConnPool;
+    this.nativeHandler = nativeHandler.bind(null, this);
+    this.retries = 0;
+    this.cache = new TransactionOperator(conn);
+  }
+
+  get pending() {
+    return this.cache.pending;
+  }
+
+  get deleted() {
+    return this.cache.deleted;
+  }
+
+  run() {
+    this.args = arguments;
+    this.nativeHandler.apply(this, arguments)
+      .then(() => console.log('Handled'));
+  }
 
   commit(replyCallback) {
     var pendingKeys = Object.keys(this.pending).filter(
@@ -158,7 +175,7 @@ class SoftTransaction {
       this.runtime.warn('Nothing changed! Transaction will not commit!');
       return;
     }
-    var trans = this.redis.multi();
+    var trans = this.conn.multi();
     trans = pendingKeys.reduce((trans, k) => trans.set(
       k, RedisStorage.serialize(this.pending[k])
     ), trans);
@@ -166,7 +183,7 @@ class SoftTransaction {
     return trans.exec()
       .then((result) => {
         if (result) {
-          this.transConnPool.releaseConnection(this.redis);
+          this.transConnPool.releaseConnection(this.conn);
           return replyCallback(this.pending);
         }
 
@@ -179,18 +196,17 @@ class SoftTransaction {
   }
 
   cancel() {
-    this.transConnPool.releaseConnection(this.redis);
+    this.transConnPool.releaseConnection(this.conn);
   }
 
   retry() {
     if (this.retries >= this.config.cache.transactionRetries) {
-      this.transConnPool.releaseConnection(this.redis);
+      this.transConnPool.releaseConnection(this.conn);
       throw new Error('This transaction has retried for ' + this.retries +
         ' times.');
     }
 
-    this.pending = {};
-    this.deleted = {};
+    this.cache.clear();
     ++this.retries;
     this.runtime.warn('Transaction retries...');
     return this.nativeHandler.apply(this, this.args);

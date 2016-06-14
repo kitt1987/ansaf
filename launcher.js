@@ -8,7 +8,7 @@ function startLayers(layers) {
   layers = layers.map((l) => {
     var layer, layerName = l;
     if (path.extname(l) === '.json') {
-      layer = require(path.join('..', l));
+      layer = require(path.join('../..', l));
       layerName = path.basename(l, '.json');
     } else {
       var Layer = require(l);
@@ -37,7 +37,7 @@ function startLayers(layers) {
 }
 
 var allLayers = [
-  '../../package.json',
+  'package.json',
   'config',
   'runtime',
   'cache',

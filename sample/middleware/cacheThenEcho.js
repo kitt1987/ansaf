@@ -6,8 +6,8 @@ function CacheThenEcho() {
 
 }
 
-CacheThenEcho.prototype.init = function() {
-  this.key = this.cache.newKey('CacheThenEcho');
+CacheThenEcho.prototype.init = function(context) {
+  this.key = context.cache.newKey('CacheThenEcho');
   this.cacheKey = this.key.individualKey();
 };
 

@@ -2,7 +2,6 @@
 
 class Middleware {
   constructor() {
-    this.keys = [];
     Object.defineProperty(this, 'keys', {
       enumerable: false,
       configurable: false,
@@ -21,11 +20,6 @@ class Middleware {
     }
 
     if (this[key]) throw new Error('Sth with key ' + key + ' exists!');
-    if (typeof obj === 'object') {
-      this.keys.forEach((middleware) => middleware[key] = obj);
-      Object.assign(obj, this);
-    }
-
     this[key] = obj;
   }
 }

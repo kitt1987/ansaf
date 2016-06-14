@@ -3,27 +3,29 @@
 const SERVER_LOOP_KEY = 'loop';
 
 class RPC {
-  runInTransaction(nativeHandle) {
-    if (!nativeHandle || !nativeHandle.prototype)
-      throw new Error('Arrow function cant work as native handler.');
+  runInTransaction(nativeHandler) {
+    if (!nativeHandler)
+      throw new Error('The native handler must be function.');
 
     var self = this;
     return function(...rpcArgs) {
-      self.cache.createTransaction(nativeHandle)
+      self.cache.createTransaction(nativeHandler)
         .then((transaction) => {
-          Object.assign(transaction, self);
+          Object.keys(self).filter((k) => k !== 'cache')
+            .forEach((k) => transaction[k] = self[k]);
           return transaction.run.apply(transaction, rpcArgs);
         });
     };
   }
 
-  run(nativeHandle) {
-    if (!nativeHandle || !nativeHandle.prototype)
-      throw new Error('Arrow function cant work as native handler.');
+  run(nativeHandler) {
+    if (!nativeHandler)
+      throw new Error('The native handler must be function.');
 
     var self = this;
     return function(...rpcArgs) {
-      return nativeHandle.apply(self, rpcArgs);
+      nativeHandler = nativeHandler.bind(null, self);
+      return nativeHandler.apply(null, rpcArgs);
     };
   }
 
@@ -37,7 +39,9 @@ class RPC {
   use(key, obj) {
     if (typeof key !== 'string') {
       if (obj) throw new Error('The key must be a string');
-      var transformer = {key};
+      var transformer = {
+        key
+      };
       Object.keys(transformer).forEach((k) => {
         key = k;
         obj = transformer[k];
