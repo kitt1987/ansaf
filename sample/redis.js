@@ -196,7 +196,18 @@ class SoftTransaction {
   }
 
   cancel() {
-    this.transConnPool.releaseConnection(this.conn);
+    var trans = this.conn.multi();
+    trans = Object.keys(this.pending)
+      .reduce((trans, k) => trans.unwatch(k), trans);
+    trans = Object.keys(this.deleted)
+      .reduce((trans, k) => trans.unwatch(k), trans);
+
+    return trans.exec()
+      .catch((err) => {
+        this.runtime.error('Fail to cancel a transaction.');
+        this.runtime.error();
+      })
+      .then(() => this.transConnPool.releaseConnection(this.conn));
   }
 
   retry() {
