@@ -10,13 +10,11 @@ class Config {
   static get default() {
     return {
       runtime: {
-        debug: false,
         lifeline: '/tmp',
         worker: 0,
         hotConfig: true
       },
       cache: {
-        debug: false,
         recycle: 300000,
         defaultLife: 86400000
       }

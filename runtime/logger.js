@@ -1,42 +1,43 @@
 'use strict';
 
 var winston = require('winston');
-var path = require('path');
+const path = require('path');
+
+const DEBUG_LABEL = 'ansaf:D';
 
 module.exports = Logger;
 
 function Logger() {}
 
 Logger.prototype.init = function() {
-  this.enableDebug = this.config.runtime.debug;
-  var logDir = this.config.runtime.logDir;
-  if (!logDir) {
-    if (this.enableDebug) winston.level = 'debug';
-    this.logger = winston;
-    return;
+  const logDir = this.config.runtime.logDir;
+  var transports;
+  if (logDir) {
+    transports = [
+      enableLog(logDir, 'error'),
+      enableLog(logDir, 'warn'),
+      enableLog(logDir, 'info')
+    ];
   }
 
-  var transports = [
-    enableLog(logDir, 'error'),
-    enableLog(logDir, 'warn'),
-    enableLog(logDir, 'info')
-  ];
+  if (process.env['DEBUG'].includes(DEBUG_LABEL)) {
+    console.log('In DEBUG mode!');
+    winston.level = 'debug';
+    if (logDir) transports.push(enableLog(logDir, 'debug'));
+    this.debug = (t) => this.logger.log('debug', t);
+  }
 
-  if (this.enableDebug) transports.push(enableLog(logDir, 'debug'));
-
-  this.logger = new(winston.Logger)({
-    transports
-  });
-};
-
-Logger.prototype.debug = function(t) {
-  if (!this.enableDebug) return;
-  if (this.logger) {
-    this.logger.log('debug', t);
+  if (transports) {
+    this.logger = new(winston.Logger)({
+      transports
+    });
   } else {
-    console.trace(t);
+    this.logger = winston;
   }
+
 };
+
+Logger.prototype.debug = function(t) {};
 
 Logger.prototype.info = function(t) {
   this.saveLog('info', t);

@@ -1,7 +1,5 @@
 'use strict';
 
-module.exports = CacheThenEcho;
-
 class CacheThenEcho {
   constructor(context) {
     this.key = context.cache.newKey('CacheThenEcho');
@@ -15,3 +13,5 @@ CacheThenEcho.prototype.cecho = function(o) {
   this.cache.local.save(this.cacheKey(), o);
   return this.echo.echo(cached + o);
 };
+
+module.exports = CacheThenEcho;

@@ -5,7 +5,6 @@ module.exports = {
     debug: true,
     lifeline: '/tmp',
     worker: 2,
-    user: 'freeman',
     hotConfig: true
   },
   cache: {
